@@ -1,0 +1,69 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: xogame-postgres
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - xogame-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: xogame-backend
+    environment:
+      PORT: 4000
+      DB_PORT: 5432
+      NODE_ENV: development
+      CORS_ORIGIN: "http://localhost:5173"
+      DATABASE_URL: "postgresql://user:password@postgres:5432/postgres?schema=public"
+      ACCESS_TOKEN_SECRET: "f417dc9ef49ff970f10d851ece6097ae"
+      REFRESH_TOKEN_SECRET: "92e60638ab90359a9c81b14ec637d370"
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - xogame-network
+    restart: unless-stopped
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: xogame-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: "http://localhost:4000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - xogame-network
+    restart: unless-stopped
+
+networks:
+  xogame-network:
+    driver: bridge
