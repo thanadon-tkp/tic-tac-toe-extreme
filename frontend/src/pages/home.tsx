@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import api from "../lib/axios";
 import { useNavigate } from "react-router-dom";
 
 export default function Home() {
@@ -6,6 +8,17 @@ export default function Home() {
   function onSelectMode(mode: "pvp" | "pvb", play: "X" | "O") {
     navigate(`/game/${mode}/${play}`);
   }
+
+  useEffect(() => {
+    const isInserted = localStorage.getItem("mockUsersInserted");
+    console.log("Mock users inserted:", isInserted);
+    if (!isInserted) {
+      // Insert mock users only once
+      api.post("/api/auth/insert_mock_users").then(() => {
+        localStorage.setItem("mockUsersInserted", "true");
+      });
+    }
+  }, []);
 
   return (
     <div className="flex flex-col gap-8 items-center">

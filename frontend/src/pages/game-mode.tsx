@@ -17,6 +17,7 @@ export default function GameMode() {
   const [winStreak, setWinStreak] = useState(0);
   const winner = calculateWinner(board);
   const isDraw = !winner && board.every((cell) => cell !== null);
+  const userId = useCallback(() => Math.floor(Math.random() * 5) + 1, [])();
 
   function handleClick(index: number) {
     if (board[index] || winner) return;
@@ -35,7 +36,10 @@ export default function GameMode() {
 
   function resetGame() {
     setBoard(Array(9).fill(null));
-    setIsXNext(mode === "pvb" && play === "O");
+
+    if (mode !== "pvb") return;
+
+    setIsXNext(true);
   }
 
   function backToMenu() {
@@ -81,12 +85,7 @@ export default function GameMode() {
   }
 
   async function onInsertScore(score: number) {
-    await api.post("/api/auth/sign_in", {
-      username: "Por",
-      password: "1234",
-    });
-    const res = await api.post("/api/scores", { score });
-    console.log("Score inserted:", res.data);
+    await api.post("/api/scores", { score, userId });
   }
 
   useEffect(() => {
@@ -134,6 +133,7 @@ export default function GameMode() {
 
   return (
     <div className="flex flex-col gap-x-4 gap-y-8 justify-center items-center">
+      <p className="text-white font-bold">userId: {userId}</p>
       <GameHeader gameMode={mode} play={play} />
       <div className="flex gap-4">
         {mode === "pvb" && <ScoreBoard score={score} winStreak={winStreak} />}
@@ -141,7 +141,6 @@ export default function GameMode() {
       </div>
       <GameBoard board={board} onCellClick={handleClick} winner={winner} />
       <GameActions onReset={resetGame} onBackToMenu={backToMenu} />
-
       {mode === "pvb" && (
         <button
           className="

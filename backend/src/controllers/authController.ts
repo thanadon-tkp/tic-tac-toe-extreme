@@ -67,3 +67,10 @@ export const getUserByToken = async (req: Request, res: Response) => {
   const result = await authServices.getUserById(id);
   res.json(result);
 };
+
+export const insertMockUsers = async (_req: Request, res: Response) => {
+  await authServices.insertMockUsers();
+  res.status(201).json({
+    message: "Mock users inserted successfully.",
+  });
+}

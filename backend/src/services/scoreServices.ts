@@ -72,3 +72,5 @@ export const getUserScores = async (userId: number) => {
     handlePrismaError(err);
   }
 };
+
+

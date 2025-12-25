@@ -2,13 +2,7 @@ import { Request, Response } from "express";
 import * as scoreServices from "../services/scoreServices";
 
 export const postInsertScore = async (req: Request, res: Response) => {
-  const userId = req.user?.id;
-  if (!userId) {
-    throw res.status(400).json({
-      message: "User not found.",
-    });
-  }
-  const { score } = req.body;
+  const { userId, score } = req.body;
 
   await scoreServices.insertScore({
     userId,
@@ -34,4 +28,4 @@ export const getUserScores = async (req: Request, res: Response) => {
 export const getAllScores = async (_req: Request, res: Response) => {
   const scores = await scoreServices.getAllScores();
   res.status(200).json(scores);
-}
+};

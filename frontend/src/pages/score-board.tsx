@@ -20,10 +20,6 @@ export default function ScoreBoard() {
   async function fetchScores() {
     try {
       setLoading(true);
-      await api.post("/api/auth/sign_in", {
-        username: "Por",
-        password: "1234",
-      });
       const res = await api.get("/api/scores/all");
       // Sort by score descending
       const sortedScores = res.data.sort(
@@ -105,7 +101,7 @@ export default function ScoreBoard() {
 
               return (
                 <div
-                  key={item.id}
+                  key={index}
                   className={`grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gray-50 transition ${
                     rank <= 3
                       ? "bg-linear-to-r from-yellow-50 to-orange-50"

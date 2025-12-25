@@ -38,7 +38,7 @@ export const login = async (credentials: SignUp) => {
     // check password
     const isCompare = await comparePassword(
       credentials.password,
-      user.password
+      user.password!
     );
 
     if (!isCompare) {
@@ -92,5 +92,51 @@ export const getUserById = async (id: number) => {
     });
   } catch (err) {
     handlePrismaError(err);
+  }
+};
+
+export const insertMockUsers = async () => {
+  try {
+    const userCount = await prisma.user.count();
+    
+    if (userCount > 0) {
+      return { message: "Users already exist", count: userCount };
+    }
+
+    // mock users
+    const mockUsers = [
+      {
+        username: "player1",
+        password: "1234",
+      },
+      {
+        username: "player2",
+        password: "1234",
+      },
+      {
+        username: "player3",
+        password: "1234",
+      },
+      {
+        username: "player4",
+        password: "1234",
+      },
+      {
+        username: "player5",
+        password: "1234",
+      },
+    ];
+
+    const createdUsers = await prisma.user.createMany({
+      data: mockUsers,
+    });
+
+    return { 
+      message: "Mock users created successfully", 
+      count: createdUsers.count 
+    };
+  } catch (err) {
+    handlePrismaError(err);
+    throw err;
   }
 };
